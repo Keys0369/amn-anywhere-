@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI/CD Pipelines — GitHub Actions</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0d;
+    --surface: #111318;
+    --card: #161a22;
+    --border: #1f2633;
+    --accent: #00e5a0;
+    --accent2: #4d9fff;
+    --accent3: #ff6b6b;
+    --accent4: #ffd166;
+    --text: #e2e8f0;
+    --muted: #6b7a99;
+    --success: #00e5a0;
+    --warning: #ffd166;
+    --error: #ff6b6b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Back link */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--muted); text-decoration: none;
+    margin-bottom: 28px; transition: color 0.2s;
+    letter-spacing: 1px;
+  }
+  .back-link:hover { color: var(--accent); }
+
+  header {
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+  }
+  .header-tag {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    color: #fff;
+  }
+  h1 span { color: var(--accent); }
+  .header-sub {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    width: fit-content;
+  }
+  .tab {
+    padding: 10px 24px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    background: var(--card);
+    color: var(--accent);
+    border: 1px solid var(--border);
+  }
+
+  /* Pipeline flow visual */
+  .pipeline-visual {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 32px;
+    overflow-x: auto;
+  }
+  .pipeline-visual h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    min-width: 600px;
+  }
+  .stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .stage-box {
+    width: 100%;
+    max-width: 110px;
+    padding: 12px 8px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .stage-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stage-box.trigger::before  { background: var(--accent4); }
+  .stage-box.build::before    { background: var(--accent2); }
+  .stage-box.test::before     { background: var(--accent); }
+  .stage-box.security::before { background: var(--accent3); }
+  .stage-box.deploy::before   { background: var(--accent); }
+  .stage-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,229,160,0.1);
+    border-color: var(--accent);
+  }
+  .stage-icon  { font-size: 20px; margin-bottom: 4px; }
+  .stage-label { color: var(--text); }
+  .stage-sub   { color: var(--muted); font-size: 10px; margin-top: 2px; }
+  .flow-arrow {
+    flex: 0 0 32px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+  /* Job steps breakdown */
+  .steps-info {
+    margin-top: 16px;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text);
+    animation: fadeIn 0.2s ease;
+    display: none;
+  }
+  .steps-info.visible { display: block; }
+  .steps-info h4 { color: var(--accent); margin-bottom: 10px; font-size: 13px; }
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-item:last-child { border-bottom: none; }
+  .step-num  { color: var(--muted); min-width: 20px; }
+  .step-text { color: var(--text); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Code panel */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    margin-top: 32px;
+  }
+
+  .code-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .code-path {
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+  .copy-btn:hover  { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--accent); color: var(--accent); }
+
+  pre {
+    padding: 24px;
+    overflow-x: auto;
+    font-size: 12.5px;
+    line-height: 1.8;
+    background: var(--bg);
+  }
+  code { font-family: 'JetBrains Mono', monospace; }
+
+  /* Syntax highlighting */
+  .y-key     { color: #4d9fff; }
+  .y-val     { color: #a8d8a8; }
+  .y-str     { color: #ffd166; }
+  .y-comment { color: #3d4f6e; font-style: italic; }
+  .y-bash    { color: #00e5a0; }
+  .y-punct   { color: #6b7a99; }
+
+  /* Checklist */
+  .checklist {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .check-item:hover { border-color: var(--accent); }
+  .check-item.checked { border-color: var(--accent); background: rgba(0,229,160,0.05); }
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    transition: all 0.2s;
+  }
+  .check-item.checked .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+  .check-text { font-size: 12px; color: var(--text); line-height: 1.5; }
+  .check-cat  { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .progress-label { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+
+  /* Secrets panel */
+  .secrets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .secret-card {
+    padding: 12px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent3);
+  }
+  .secret-name { font-size: 12px; color: var(--accent4); font-weight: 600; margin-bottom: 4px; }
+  .secret-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <a class="back-link" href="/">&#8592; Back to AMN Hub</a>
+
+  <header>
+    <div class="header-tag">// GitHub Actions</div>
+    <h1>CI/CD <span>Pipelines</span></h1>
+    <div class="header-sub">Python &amp; Node.js &middot; Production-ready workflows &middot; Lint &rarr; Test &rarr; Build &rarr; Deploy</div>
+  </header>
+
+  <!-- Pipeline Flow Visual -->
+  <div class="pipeline-visual">
+    <h3>// Pipeline Stages &mdash; click any stage to inspect</h3>
+    <div class="flow">
+      <div class="stage">
+        <div class="stage-box trigger" onclick="showStage('trigger')">
+          <div class="stage-icon">&#9889;</div>
+          <div class="stage-label">Trigger</div>
+          <div class="stage-sub">push / PR</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="stage">
+        <div class="stage-box build" onclick="showStage('build')">
+          <div class="stage-icon">&#128230;</div>
+          <div class="stage-label">Install</div>
+          <div class="stage-sub">deps + cache</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="stage">
+        <div class="stage-box test" onclick="showStage('lint')">
+          <div class="stage-icon">&#128269;</div>
+          <div class="stage-label">Lint</div>
+          <div class="stage-sub">code quality</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="stage">
+        <div class="stage-box test" onclick="showStage('test')">
+          <div class="stage-icon">&#129514;</div>
+          <div class="stage-label">Test</div>
+          <div class="stage-sub">+ coverage</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="stage">
+        <div class="stage-box security" onclick="showStage('security')">
+          <div class="stage-icon">&#128737;</div>
+          <div class="stage-label">Security</div>
+          <div class="stage-sub">audit / scan</div>
+        </div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="stage">
+        <div class="stage-box deploy" onclick="showStage('deploy')">
+          <div class="stage-icon">&#128640;</div>
+          <div class="stage-label">Deploy</div>
+          <div class="stage-sub">staging / prod</div>
+        </div>
+      </div>
+    </div>
+    <div class="steps-info" id="stageInfo"></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('python', this)">&#x1F40D; Python</button>
+    <button class="tab" onclick="switchTab('node', this)">&#x2B21; Node.js</button>
+    <button class="tab" onclick="switchTab('checklist', this)">&#x2713; Checklist</button>
+    <button class="tab" onclick="switchTab('secrets', this)">&#x1F511; Secrets</button>
+  </div>
+
+  <!-- PYTHON PANEL -->
+  <div class="panel active" id="panel-python">
+    <div class="section-label">// Main CI Pipeline</div>
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-title">Python CI &mdash; Test, Lint, Coverage</span>
+        <span class="code-path">.github/workflows/ci.yml</span>
+        <button class="copy-btn" onclick="copyCode('py-ci', this)">COPY</button>
+      </div>
+      <pre id="py-ci"><code><span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Python CI</span>
+
+<span class="y-key">on</span><span class="y-punct">:</span>
+  <span class="y-key">push</span><span class="y-punct">:</span>
+    <span class="y-key">branches</span><span class="y-punct">:</span> <span class="y-punct">[</span><span class="y-str">main</span><span class="y-punct">,</span> <span class="y-str">develop</span><span class="y-punct">]</span>
+  <span class="y-key">pull_request</span><span class="y-punct">:</span>
+    <span class="y-key">branches</span><span class="y-punct">:</span> <span class="y-punct">[</span><span class="y-str">main</span><span class="y-punct">]</span>
+
+<span class="y-key">env</span><span class="y-punct">:</span>
+  <span class="y-key">PYTHON_VERSION</span><span class="y-punct">:</span> <span class="y-str">"3.11"</span>
+
+<span class="y-key">jobs</span><span class="y-punct">:</span>
+
+  <span class="y-key">lint</span><span class="y-punct">:</span>
+    <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Lint &amp; Format Check</span>
+    <span class="y-key">runs-on</span><span class="y-punct">:</span> <span class="y-val">ubuntu-latest</span>
+    <span class="y-key">steps</span><span class="y-punct">:</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/checkout@v4</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/setup-python@v5</span>
+        <span class="y-key">with</span><span class="y-punct">:</span>
+          <span class="y-key">python-version</span><span class="y-punct">:</span> <span class="y-val">${{ env.PYTHON_VERSION }}</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Install linters</span>
+        <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">pip install ruff black isort</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Run Ruff</span>
+        <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">ruff check .</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Check formatting (Black)</span>
+        <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">black --check .</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Check imports (isort)</span>
+        <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">isort --check-only .</span>
+
+  <span class="y-key">test</span><span class="y-punct">:</span>
+    <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Test Suite</span>
+    <span class="y-key">runs-on</span><span class="y-punct">:</span> <span class="y-val">ubuntu-latest</span>
+    <span class="y-key">needs</span><span class="y-punct">:</span> <span class="y-val">lint</span>
+    <span class="y-key">strategy</span><span class="y-punct">:</span>
+      <span class="y-key">matrix</span><span class="y-punct">:</span>
+        <span class="y-key">python-version</span><span class="y-punct">:</span> <span class="y-punct">[</span><span class="y-str">"3.10"</span><span class="y-punct">,</span> <span class="y-str">"3.11"</span><span class="y-punct">,</span> <span class="y-str">"3.12"</span><span class="y-punct">]</span>
+    <span class="y-key">steps</span><span class="y-punct">:</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/checkout@v4</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/setup-python@v5</span>
+        <span class="y-key">with</span><span class="y-punct">:</span>
+          <span class="y-key">python-version</span><span class="y-punct">:</span> <span class="y-val">${{ matrix.python-version }}</span>
+          <span class="y-key">cache</span><span class="y-punct">:</span> <span class="y-str">pip</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Install dependencies</span>
+        <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">pip install -r requirements.txt -r requirements-dev.txt</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Run tests with coverage</span>
+        <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">pytest --cov=src --cov-report=xml --cov-fail-under=80 -v</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Upload coverage report</span>
+        <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">codecov/codecov-action@v4</span>
+        <span class="y-key">with</span><span class="y-punct">:</span>
+          <span class="y-key">token</span><span class="y-punct">:</span> <span class="y-val">${{ secrets.CODECOV_TOKEN }}</span>
+
+  <span class="y-key">security</span><span class="y-punct">:</span>
+    <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Security Scan</span>
+    <span class="y-key">runs-on</span><span class="y-punct">:</span> <span class="y-val">ubuntu-latest</span>
+    <span class="y-key">needs</span><span class="y-punct">:</span> <span class="y-val">test</span>
+    <span class="y-key">steps</span><span class="y-punct">:</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/checkout@v4</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/setup-python@v5</span>
+        <span class="y-key">with</span><span class="y-punct">:</span>
+          <span class="y-key">python-version</span><span class="y-punct">:</span> <span class="y-val">${{ env.PYTHON_VERSION }}</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Run Bandit (SAST)</span>
+        <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">pip install bandit &amp;&amp; bandit -r src/ -ll</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Check dependencies (Safety)</span>
+        <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">pip install safety &amp;&amp; safety check</span></code></pre>
+    </div>
+
+    <div class="section-label">// CD &mdash; Deploy to Production</div>
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-title">Python CD &mdash; Deploy on merge to main</span>
+        <span class="code-path">.github/workflows/cd.yml</span>
+        <button class="copy-btn" onclick="copyCode('py-cd', this)">COPY</button>
+      </div>
+      <pre id="py-cd"><code><span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Python CD</span>
+
+<span class="y-key">on</span><span class="y-punct">:</span>
+  <span class="y-key">push</span><span class="y-punct">:</span>
+    <span class="y-key">branches</span><span class="y-punct">:</span> <span class="y-punct">[</span><span class="y-str">main</span><span class="y-punct">]</span>
+
+<span class="y-key">jobs</span><span class="y-punct">:</span>
+
+  <span class="y-key">deploy-staging</span><span class="y-punct">:</span>
+    <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Deploy &rarr; Staging</span>
+    <span class="y-key">runs-on</span><span class="y-punct">:</span> <span class="y-val">ubuntu-latest</span>
+    <span class="y-key">environment</span><span class="y-punct">:</span>
+      <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">staging</span>
+      <span class="y-key">url</span><span class="y-punct">:</span> <span class="y-val">${{ steps.deploy.outputs.url }}</span>
+    <span class="y-key">steps</span><span class="y-punct">:</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/checkout@v4</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Deploy to Staging</span>
+        <span class="y-key">id</span><span class="y-punct">:</span> <span class="y-val">deploy</span>
+        <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">|
+          echo "Deploying to staging..."
+          # Add your deploy command here e.g.:
+          # ssh $STAGING_HOST "cd /app &amp;&amp; git pull &amp;&amp; systemctl restart app"</span>
+        <span class="y-key">env</span><span class="y-punct">:</span>
+          <span class="y-key">STAGING_HOST</span><span class="y-punct">:</span> <span class="y-val">${{ secrets.STAGING_HOST }}</span>
+          <span class="y-key">STAGING_KEY</span><span class="y-punct">:</span>  <span class="y-val">${{ secrets.STAGING_SSH_KEY }}</span>
+
+  <span class="y-key">deploy-production</span><span class="y-punct">:</span>
+    <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Deploy &rarr; Production</span>
+    <span class="y-key">runs-on</span><span class="y-punct">:</span> <span class="y-val">ubuntu-latest</span>
+    <span class="y-key">needs</span><span class="y-punct">:</span> <span class="y-val">deploy-staging</span>
+    <span class="y-key">environment</span><span class="y-punct">:</span>
+      <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">production</span>
+    <span class="y-key">steps</span><span class="y-punct">:</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/checkout@v4</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Deploy to Production</span>
+        <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">echo "Deploying to production..."</span>
+        <span class="y-key">env</span><span class="y-punct">:</span>
+          <span class="y-key">PROD_HOST</span><span class="y-punct">:</span> <span class="y-val">${{ secrets.PROD_HOST }}</span>
+          <span class="y-key">PROD_KEY</span><span class="y-punct">:</span>  <span class="y-val">${{ secrets.PROD_SSH_KEY }}</span></code></pre>
+    </div>
+  </div>
+
+  <!-- NODE PANEL -->
+  <div class="panel" id="panel-node">
+    <div class="section-label">// Main CI Pipeline</div>
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-title">Node.js CI &mdash; Lint, Test, Build</span>
+        <span class="code-path">.github/workflows/ci.yml</span>
+        <button class="copy-btn" onclick="copyCode('node-ci', this)">COPY</button>
+      </div>
+      <pre id="node-ci"><code><span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Node.js CI</span>
+
+<span class="y-key">on</span><span class="y-punct">:</span>
+  <span class="y-key">push</span><span class="y-punct">:</span>
+    <span class="y-key">branches</span><span class="y-punct">:</span> <span class="y-punct">[</span><span class="y-str">main</span><span class="y-punct">,</span> <span class="y-str">develop</span><span class="y-punct">]</span>
+  <span class="y-key">pull_request</span><span class="y-punct">:</span>
+    <span class="y-key">branches</span><span class="y-punct">:</span> <span class="y-punct">[</span><span class="y-str">main</span><span class="y-punct">]</span>
+
+<span class="y-key">jobs</span><span class="y-punct">:</span>
+
+  <span class="y-key">lint</span><span class="y-punct">:</span>
+    <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Lint &amp; Type Check</span>
+    <span class="y-key">runs-on</span><span class="y-punct">:</span> <span class="y-val">ubuntu-latest</span>
+    <span class="y-key">steps</span><span class="y-punct">:</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/checkout@v4</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/setup-node@v4</span>
+        <span class="y-key">with</span><span class="y-punct">:</span>
+          <span class="y-key">node-version</span><span class="y-punct">:</span> <span class="y-str">"20"</span>
+          <span class="y-key">cache</span><span class="y-punct">:</span> <span class="y-str">npm</span>
+      <span class="y-punct">-</span> <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">npm ci</span>
+      <span class="y-punct">-</span> <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">npm run lint</span>
+      <span class="y-punct">-</span> <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">npm run typecheck</span>   <span class="y-comment"># if using TypeScript</span>
+
+  <span class="y-key">test</span><span class="y-punct">:</span>
+    <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Test Suite</span>
+    <span class="y-key">runs-on</span><span class="y-punct">:</span> <span class="y-val">ubuntu-latest</span>
+    <span class="y-key">needs</span><span class="y-punct">:</span> <span class="y-val">lint</span>
+    <span class="y-key">strategy</span><span class="y-punct">:</span>
+      <span class="y-key">matrix</span><span class="y-punct">:</span>
+        <span class="y-key">node-version</span><span class="y-punct">:</span> <span class="y-punct">[</span><span class="y-str">18</span><span class="y-punct">,</span> <span class="y-str">20</span><span class="y-punct">,</span> <span class="y-str">22</span><span class="y-punct">]</span>
+    <span class="y-key">steps</span><span class="y-punct">:</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/checkout@v4</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/setup-node@v4</span>
+        <span class="y-key">with</span><span class="y-punct">:</span>
+          <span class="y-key">node-version</span><span class="y-punct">:</span> <span class="y-val">${{ matrix.node-version }}</span>
+          <span class="y-key">cache</span><span class="y-punct">:</span> <span class="y-str">npm</span>
+      <span class="y-punct">-</span> <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">npm ci</span>
+      <span class="y-punct">-</span> <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">npm test -- --coverage</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Upload coverage</span>
+        <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">codecov/codecov-action@v4</span>
+        <span class="y-key">if</span><span class="y-punct">:</span> <span class="y-val">matrix.node-version == 20</span>
+        <span class="y-key">with</span><span class="y-punct">:</span>
+          <span class="y-key">token</span><span class="y-punct">:</span> <span class="y-val">${{ secrets.CODECOV_TOKEN }}</span>
+
+  <span class="y-key">build</span><span class="y-punct">:</span>
+    <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Build &amp; Artifact</span>
+    <span class="y-key">runs-on</span><span class="y-punct">:</span> <span class="y-val">ubuntu-latest</span>
+    <span class="y-key">needs</span><span class="y-punct">:</span> <span class="y-val">test</span>
+    <span class="y-key">steps</span><span class="y-punct">:</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/checkout@v4</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/setup-node@v4</span>
+        <span class="y-key">with</span><span class="y-punct">:</span>
+          <span class="y-key">node-version</span><span class="y-punct">:</span> <span class="y-str">"20"</span>
+          <span class="y-key">cache</span><span class="y-punct">:</span> <span class="y-str">npm</span>
+      <span class="y-punct">-</span> <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">npm ci &amp;&amp; npm run build</span>
+      <span class="y-punct">-</span> <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Upload build artifact</span>
+        <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/upload-artifact@v4</span>
+        <span class="y-key">with</span><span class="y-punct">:</span>
+          <span class="y-key">name</span><span class="y-punct">:</span>           <span class="y-val">build-output</span>
+          <span class="y-key">path</span><span class="y-punct">:</span>           <span class="y-val">dist/</span>
+          <span class="y-key">retention-days</span><span class="y-punct">:</span> <span class="y-val">7</span>
+
+  <span class="y-key">security</span><span class="y-punct">:</span>
+    <span class="y-key">name</span><span class="y-punct">:</span> <span class="y-val">Security Audit</span>
+    <span class="y-key">runs-on</span><span class="y-punct">:</span> <span class="y-val">ubuntu-latest</span>
+    <span class="y-key">needs</span><span class="y-punct">:</span> <span class="y-val">build</span>
+    <span class="y-key">steps</span><span class="y-punct">:</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/checkout@v4</span>
+      <span class="y-punct">-</span> <span class="y-key">uses</span><span class="y-punct">:</span> <span class="y-val">actions/setup-node@v4</span>
+        <span class="y-key">with</span><span class="y-punct">:</span>
+          <span class="y-key">node-version</span><span class="y-punct">:</span> <span class="y-str">"20"</span>
+          <span class="y-key">cache</span><span class="y-punct">:</span> <span class="y-str">npm</span>
+      <span class="y-punct">-</span> <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">npm ci</span>
+      <span class="y-punct">-</span> <span class="y-key">run</span><span class="y-punct">:</span> <span class="y-bash">npm audit --audit-level=high</span></code></pre>
+    </div>
+  </div>
+
+  <!-- CHECKLIST PANEL -->
+  <div class="panel" id="panel-checklist">
+    <div class="section-label">// Pipeline Readiness Checklist</div>
+    <div class="progress-label" id="progressLabel">0 / 16 complete</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="checklist" id="checklistGrid"></div>
+  </div>
+
+  <!-- SECRETS PANEL -->
+  <div class="panel" id="panel-secrets">
+    <div class="section-label">// Required GitHub Secrets</div>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:20px;">Set these in your repo: Settings &rarr; Secrets and variables &rarr; Actions</p>
+    <div class="secrets-grid" id="secretsGrid"></div>
+  </div>
+
+</div>
+
+<script>
+const stageDetails = {
+  trigger: {
+    title: '&#9889; Trigger &mdash; When does it run?',
+    steps: [
+      { n: '1', t: 'push to main/develop &rarr; run full CI pipeline' },
+      { n: '2', t: 'pull_request to main &rarr; run CI as status check' },
+      { n: '3', t: 'manual via workflow_dispatch (optional)' },
+      { n: '4', t: 'scheduled (e.g. nightly security scans)' },
+    ]
+  },
+  build: {
+    title: '&#128230; Install &mdash; Deps &amp; Cache',
+    steps: [
+      { n: '1', t: 'Checkout code with actions/checkout@v4' },
+      { n: '2', t: 'Setup runtime (Python/Node) with version pinned' },
+      { n: '3', t: 'Restore dependency cache (pip / npm ci)' },
+      { n: '4', t: 'Install all dependencies including dev/test extras' },
+    ]
+  },
+  lint: {
+    title: '&#128269; Lint &mdash; Code Quality Gates',
+    steps: [
+      { n: 'Py', t: 'Ruff (fast linting), Black (formatting), isort (imports)' },
+      { n: 'JS', t: 'ESLint for rules, Prettier for formatting, tsc --noEmit for types' },
+      { n: '!',  t: 'Lint runs BEFORE tests &mdash; fail fast, save compute minutes' },
+    ]
+  },
+  test: {
+    title: '&#129514; Test &mdash; Suite &amp; Coverage',
+    steps: [
+      { n: '1', t: 'Run tests across a version matrix (Python 3.10/11/12 or Node 18/20/22)' },
+      { n: '2', t: 'Enforce minimum coverage threshold (e.g. 80%)' },
+      { n: '3', t: 'Upload coverage XML to Codecov' },
+      { n: '4', t: 'Generate JUnit XML for GitHub test summary' },
+    ]
+  },
+  security: {
+    title: '&#128737; Security &mdash; Vulnerability Scanning',
+    steps: [
+      { n: 'Py', t: 'Bandit: static analysis for Python security bugs' },
+      { n: 'Py', t: 'Safety: scan requirements.txt for known CVEs' },
+      { n: 'JS', t: 'npm audit: scan node_modules for high+ severity vulns' },
+      { n: '+',  t: 'Consider adding GitHub CodeQL or Snyk for deeper scans' },
+    ]
+  },
+  deploy: {
+    title: '&#128640; Deploy &mdash; Staging &rarr; Production',
+    steps: [
+      { n: '1', t: 'Deploy to staging on every merge to main' },
+      { n: '2', t: 'Use GitHub Environments for approvals + protection rules' },
+      { n: '3', t: 'Deploy to production after manual approval gate' },
+      { n: '4', t: 'Upload build artifacts, tag releases, post Slack notifications' },
+    ]
+  }
+};
+
+let activeStage = null;
+function showStage(key) {
+  const info = document.getElementById('stageInfo');
+  if (activeStage === key) {
+    info.classList.remove('visible');
+    activeStage = null;
+    return;
+  }
+  const d = stageDetails[key];
+  info.innerHTML = '<h4>' + d.title + '</h4>' +
+    d.steps.map(s =>
+      '<div class="step-item"><span class="step-num">' + s.n + '</span><span class="step-text">' + s.t + '</span></div>'
+    ).join('');
+  info.classList.add('visible');
+  activeStage = key;
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function copyCode(id, btn) {
+  const el = document.getElementById(id);
+  const text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'COPIED \u2713';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// Checklist data
+const checks = [
+  { text: 'Branch protection enabled on main',                        cat: 'Repo Setup' },
+  { text: 'Require status checks before merge',                       cat: 'Repo Setup' },
+  { text: 'CI workflow file committed to repo',                       cat: 'Repo Setup' },
+  { text: 'All required secrets added to repo',                       cat: 'Secrets'    },
+  { text: 'Linter config file present (ruff.toml / .eslintrc)',       cat: 'Lint'       },
+  { text: 'Formatter config present (pyproject.toml / .prettierrc)',  cat: 'Lint'       },
+  { text: 'Test suite runs locally (pytest / jest)',                   cat: 'Tests'      },
+  { text: 'Coverage threshold set (\u2265 80% recommended)',          cat: 'Tests'      },
+  { text: 'Matrix testing across versions configured',                 cat: 'Tests'      },
+  { text: 'Security scanner integrated (Bandit / npm audit)',         cat: 'Security'   },
+  { text: 'Dependency cache configured for speed',                    cat: 'Performance'},
+  { text: 'Build artifacts uploaded on success',                      cat: 'Performance'},
+  { text: 'GitHub Environments created (staging + prod)',             cat: 'Deploy'     },
+  { text: 'Production environment has manual approval gate',          cat: 'Deploy'     },
+  { text: 'Deployment notifications configured (Slack/email)',        cat: 'Deploy'     },
+  { text: 'Rollback strategy documented',                             cat: 'Deploy'     },
+];
+
+const grid = document.getElementById('checklistGrid');
+checks.forEach((c, i) => {
+  const el = document.createElement('div');
+  el.className = 'check-item';
+  el.innerHTML =
+    '<div class="check-box"></div>' +
+    '<div><div class="check-text">' + c.text + '</div>' +
+    '<div class="check-cat">' + c.cat + '</div></div>';
+  el.onclick = () => toggleCheck(el);
+  grid.appendChild(el);
+});
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const total = checks.length;
+  const done  = document.querySelectorAll('.check-item.checked').length;
+  document.getElementById('progressLabel').textContent = done + ' / ' + total + ' complete';
+  document.getElementById('progressFill').style.width  = (done / total * 100) + '%';
+  el.querySelector('.check-box').textContent = el.classList.contains('checked') ? '\u2713' : '';
+}
+
+// Secrets data
+const secrets = [
+  { name: 'CODECOV_TOKEN',      desc: 'Token from codecov.io for uploading coverage reports' },
+  { name: 'STAGING_HOST',       desc: 'IP or hostname of your staging server' },
+  { name: 'STAGING_SSH_KEY',    desc: 'Private SSH key for staging server access' },
+  { name: 'PROD_HOST',          desc: 'IP or hostname of your production server' },
+  { name: 'PROD_SSH_KEY',       desc: 'Private SSH key for production server access' },
+  { name: 'SLACK_WEBHOOK_URL',  desc: 'Webhook URL for deployment notifications' },
+  { name: 'DOCKER_USERNAME',    desc: 'Docker Hub username (if using containers)' },
+  { name: 'DOCKER_PASSWORD',    desc: 'Docker Hub password or access token' },
+];
+
+const sg = document.getElementById('secretsGrid');
+secrets.forEach(s => {
+  const el = document.createElement('div');
+  el.className = 'secret-card';
+  el.innerHTML =
+    '<div class="secret-name">' + s.name + '</div>' +
+    '<div class="secret-desc">' + s.desc + '</div>';
+  sg.appendChild(el);
+});
+</script>
+
+</body>
+</html>

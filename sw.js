@@ -7,6 +7,7 @@ const CACHE_NAME = 'amn-hub-v1.0.0';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/cicd.html',
   '/manifest.json',
   '/css/main.css',
   '/js/app.js',
