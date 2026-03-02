@@ -3,12 +3,241 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anywhere App – AMN</title>
+  <title>AMN Hub – Multi-Platform AI Ecosystem</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#000000"/>
+  <meta name="theme-color" content="#7c3aed"/>
+  <meta name="description" content="AMN Anywhere – The Ultimate Multi-Platform AI-Powered Hub">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-  <h1>🚀 Welcome to Anywhere App – AMN</h1>
-  <p>This is your Progressive Web App (PWA) deployed via GitHub Pages.</p>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loader-wrap">
+      <div class="loader-hex">
+        <div class="hex-inner">AMN</div>
+      </div>
+      <div class="loader-title">HUB INITIALIZING</div>
+      <div class="loader-bar-wrap"><div class="loader-bar" id="loader-bar"></div></div>
+      <div class="loader-status" id="loader-status">Connecting platforms...</div>
+      <div class="loader-platforms" id="loader-platforms"></div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app" class="app hidden">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-hex"><span>AMN</span></div>
+        <div class="brand-info">
+          <span class="brand-name">AMN HUB</span>
+          <span class="brand-sub">AI Ecosystem</span>
+        </div>
+        <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="Collapse sidebar">&#x25C1;</button>
+      </div>
+
+      <div class="sidebar-section-label">PLATFORMS</div>
+      <nav id="main-nav" class="sidebar-nav">
+        <a class="nav-item active" data-platform="dashboard" href="#">
+          <span class="nav-icon">&#x2302;</span>
+          <span class="nav-label">Hub Dashboard</span>
+        </a>
+        <a class="nav-item" data-platform="crypto" href="#">
+          <span class="nav-icon">&#x20BF;</span>
+          <span class="nav-label">Crypto Trading</span>
+          <span class="nav-badge live-badge">LIVE</span>
+        </a>
+        <a class="nav-item" data-platform="social" href="#">
+          <span class="nav-icon">&#x25CE;</span>
+          <span class="nav-label">Social Network</span>
+          <span class="nav-badge" id="badge-social">12</span>
+        </a>
+        <a class="nav-item" data-platform="ecommerce" href="#">
+          <span class="nav-icon">&#x25C6;</span>
+          <span class="nav-label">E-Commerce</span>
+          <span class="nav-badge" id="badge-orders">5</span>
+        </a>
+        <a class="nav-item" data-platform="network" href="#">
+          <span class="nav-icon">&#x2B21;</span>
+          <span class="nav-label">Global Network</span>
+        </a>
+        <a class="nav-item" data-platform="affiliate" href="#">
+          <span class="nav-icon">&#x25C7;</span>
+          <span class="nav-label">Affiliate Hub</span>
+        </a>
+        <a class="nav-item" data-platform="funnels" href="#">
+          <span class="nav-icon">&#x25BD;</span>
+          <span class="nav-label">Income Funnels</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-section-label">AI SYSTEMS</div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" data-platform="ai-station" href="#">
+          <span class="nav-icon">&#x2726;</span>
+          <span class="nav-label">AI Creator Station</span>
+          <span class="nav-badge new-badge">20 TOOLS</span>
+        </a>
+        <a class="nav-item" data-platform="bots" href="#">
+          <span class="nav-icon">&#x25CB;</span>
+          <span class="nav-label">Bot Fleet</span>
+          <span class="nav-badge active-badge">10 LIVE</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="hub-health">
+          <div class="health-title">Hub Health</div>
+          <div class="health-grid">
+            <div class="health-item">
+              <span class="health-val" id="hlt-platforms">9/9</span>
+              <span class="health-lbl">Platforms</span>
+            </div>
+            <div class="health-item">
+              <span class="health-val" id="hlt-bots">10</span>
+              <span class="health-lbl">Active Bots</span>
+            </div>
+            <div class="health-item">
+              <span class="health-val green" id="hlt-status">ONLINE</span>
+              <span class="health-lbl">Status</span>
+            </div>
+          </div>
+          <div class="health-bar-row">
+            <div class="health-bar"><div class="health-fill" style="width:96%"></div></div>
+            <span>96%</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+
+      <!-- Header -->
+      <header id="app-header">
+        <div class="hdr-left">
+          <button id="mobile-menu-btn" class="hdr-btn-icon">&#9776;</button>
+          <div class="page-info">
+            <span class="page-name" id="page-name">Hub Dashboard</span>
+            <div class="ticker-strip" id="live-ticker">
+              <span class="ticker-item">BTC $67,420 <span class="up">+2.4%</span></span>
+              <span class="ticker-sep">|</span>
+              <span class="ticker-item">ETH $3,891 <span class="up">+1.8%</span></span>
+              <span class="ticker-sep">|</span>
+              <span class="ticker-item">SOL $178 <span class="up">+5.2%</span></span>
+              <span class="ticker-sep">|</span>
+              <span class="ticker-item">Revenue Today <span class="up">+$2,341</span></span>
+              <span class="ticker-sep">|</span>
+              <span class="ticker-item">Network <span class="up">14,892 members</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hdr-center">
+          <div class="global-search">
+            <span class="search-ico">&#128269;</span>
+            <input type="text" id="global-search" placeholder="Search hub, platforms, tools...">
+          </div>
+        </div>
+
+        <div class="hdr-right">
+          <div class="hdr-stats" id="hdr-stats">
+            <div class="hdr-stat">
+              <div class="hdr-stat-val" id="hdr-portfolio">$127,493</div>
+              <div class="hdr-stat-lbl">Portfolio</div>
+            </div>
+            <div class="hdr-stat">
+              <div class="hdr-stat-val positive" id="hdr-gain">+$2,341</div>
+              <div class="hdr-stat-lbl">Today</div>
+            </div>
+            <div class="hdr-stat">
+              <div class="hdr-stat-val" id="hdr-streams">7 Active</div>
+              <div class="hdr-stat-lbl">Streams</div>
+            </div>
+          </div>
+          <div class="hdr-actions">
+            <button class="hdr-btn-icon" id="notif-btn" title="Notifications">
+              &#128276;
+              <span class="notif-badge" id="notif-count">5</span>
+            </button>
+            <button class="hdr-btn-icon ai-glow" id="ai-panel-btn" title="AI Assistant">
+              &#10024; AI
+            </button>
+            <div class="user-pill" id="user-pill">
+              <div class="user-ava">AM</div>
+              <div class="user-details">
+                <span class="user-nm">AMN Creator</span>
+                <span class="user-tier">&#9733; Pro Member</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Platform View -->
+      <div id="platform-view">
+        <!-- Content injected by JS -->
+      </div>
+
+    </div><!-- end main-wrapper -->
+
+    <!-- AI Assistant Panel -->
+    <aside id="ai-panel" class="ai-panel hidden">
+      <div class="ai-panel-hdr">
+        <div class="ai-panel-title">
+          <div class="ai-ava-sm">&#129302;</div>
+          <div>
+            <div class="ai-panel-name">Hub AI Assistant</div>
+            <div class="ai-panel-status"><span class="dot green"></span> All platforms connected</div>
+          </div>
+        </div>
+        <button id="ai-panel-close">&#10005;</button>
+      </div>
+      <div class="ai-quick-btns" id="ai-quick-btns">
+        <button class="ai-q-btn" data-q="Show portfolio overview">&#128202; Portfolio</button>
+        <button class="ai-q-btn" data-q="Top crypto signals right now">&#x20BF; Signals</button>
+        <button class="ai-q-btn" data-q="My affiliate commissions">&#128176; Commissions</button>
+        <button class="ai-q-btn" data-q="Optimize traffic funnels">&#9889; Funnels</button>
+        <button class="ai-q-btn" data-q="Bot fleet status report">&#129302; Bot Status</button>
+        <button class="ai-q-btn" data-q="Top AI tools for content creation">&#9733; AI Tools</button>
+      </div>
+      <div class="ai-msgs" id="ai-msgs"></div>
+      <div class="ai-input-wrap">
+        <div class="ai-model-row">
+          <label>Model:</label>
+          <select id="ai-model">
+            <option value="claude">Claude Sonnet 4.6</option>
+            <option value="gpt4">GPT-4o</option>
+            <option value="gemini">Gemini 1.5 Pro</option>
+            <option value="llama">Llama 3.1</option>
+          </select>
+        </div>
+        <div class="ai-input-row">
+          <input type="text" id="ai-input" placeholder="Ask your Hub AI anything...">
+          <button id="ai-send">&#10148;</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Notifications Panel -->
+    <div id="notif-panel" class="notif-panel hidden">
+      <div class="notif-panel-hdr">
+        <span>&#128276; Notifications</span>
+        <button id="notif-close">&#10005;</button>
+      </div>
+      <div id="notif-list"></div>
+    </div>
+
+    <!-- Overlay -->
+    <div id="overlay" class="overlay hidden"></div>
+
+  </div><!-- end #app -->
+
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
