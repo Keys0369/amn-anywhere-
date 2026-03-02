@@ -8,6 +8,7 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/cicd.html',
+  '/phoneprofits.html',
   '/manifest.json',
   '/css/main.css',
   '/js/app.js',

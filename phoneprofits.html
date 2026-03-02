@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💰 PhoneProfits Pro — Private Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060810;
+    --surface: #0d1117;
+    --card: #111827;
+    --border: #1e2d40;
+    --accent: #00ff88;
+    --accent2: #00c4ff;
+    --gold: #ffd700;
+    --danger: #ff4757;
+    --text: #e8edf5;
+    --muted: #6b7a99;
+    --glow: 0 0 30px rgba(0,255,136,0.15);
+  }
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+background: var(--bg);
+color: var(--text);
+font-family: ‘DM Sans’, sans-serif;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* BACKGROUND GRID */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image:
+linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+background-size: 60px 60px;
+pointer-events: none;
+z-index: 0;
+}
+
+.wrapper { position: relative; z-index: 1; }
+
+/* ─── HEADER ─── */
+header {
+background: linear-gradient(180deg, rgba(0,255,136,0.08) 0%, transparent 100%);
+border-bottom: 1px solid var(--border);
+padding: 0 24px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+height: 70px;
+position: sticky;
+top: 0;
+z-index: 100;
+backdrop-filter: blur(20px);
+}
+
+.logo {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 28px;
+letter-spacing: 3px;
+background: linear-gradient(135deg, var(--accent), var(--accent2));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+
+.live-badge {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 12px;
+font-weight: 600;
+color: var(--accent);
+font-family: ‘JetBrains Mono’, monospace;
+letter-spacing: 1px;
+}
+
+.pulse-dot {
+width: 8px; height: 8px;
+background: var(--accent);
+border-radius: 50%;
+animation: pulse 1.5s infinite;
+box-shadow: 0 0 10px var(--accent);
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 1; transform: scale(1); }
+50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.user-pill {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 50px;
+padding: 6px 16px;
+font-size: 13px;
+font-weight: 600;
+color: var(--gold);
+cursor: pointer;
+}
+
+/* ─── NAV TABS ─── */
+.nav-tabs {
+display: flex;
+gap: 4px;
+padding: 16px 24px 0;
+border-bottom: 1px solid var(--border);
+overflow-x: auto;
+scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+padding: 10px 20px;
+border: none;
+background: transparent;
+color: var(--muted);
+font-family: ‘DM Sans’, sans-serif;
+font-size: 14px;
+font-weight: 600;
+cursor: pointer;
+border-bottom: 3px solid transparent;
+white-space: nowrap;
+transition: all 0.2s;
+letter-spacing: 0.5px;
+}
+
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active {
+color: var(--accent);
+border-bottom-color: var(--accent);
+}
+
+/* ─── MAIN CONTENT ─── */
+.main { padding: 28px 24px; max-width: 1400px; margin: 0 auto; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ─── MONEY TICKER ─── */
+.ticker-bar {
+background: linear-gradient(90deg, rgba(0,255,136,0.1), rgba(0,196,255,0.1));
+border: 1px solid rgba(0,255,136,0.2);
+border-radius: 12px;
+padding: 14px 24px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 28px;
+animation: tickerGlow 3s infinite alternate;
+}
+
+@keyframes tickerGlow {
+from { box-shadow: 0 0 20px rgba(0,255,136,0.1); }
+to { box-shadow: 0 0 40px rgba(0,255,136,0.2); }
+}
+
+.ticker-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.ticker-value {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 36px;
+color: var(--accent);
+letter-spacing: 2px;
+text-shadow: 0 0 20px rgba(0,255,136,0.5);
+}
+.ticker-today { font-family: ‘JetBrains Mono’, monospace; font-size: 14px; color: var(--gold); }
+
+/* ─── STATS GRID ─── */
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 16px;
+margin-bottom: 28px;
+}
+
+.stat-card {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 20px;
+position: relative;
+overflow: hidden;
+transition: border-color 0.3s, transform 0.2s;
+}
+
+.stat-card:hover {
+border-color: var(--accent);
+transform: translateY(-2px);
+box-shadow: var(--glow);
+}
+
+.stat-card::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 2px;
+background: linear-gradient(90deg, var(--accent), var(--accent2));
+opacity: 0;
+transition: opacity 0.3s;
+}
+.stat-card:hover::before { opacity: 1; }
+
+.stat-icon { font-size: 28px; margin-bottom: 10px; }
+.stat-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.stat-value { font-family: ‘Bebas Neue’, sans-serif; font-size: 32px; color: var(--text); letter-spacing: 1px; }
+.stat-sub { font-size: 12px; color: var(--accent); margin-top: 4px; font-weight: 600; }
+
+/* ─── 3 STEPS ─── */
+.steps-header {
+text-align: center;
+margin-bottom: 32px;
+}
+.steps-header h1 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 56px;
+letter-spacing: 4px;
+background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+line-height: 1;
+}
+.steps-header p { color: var(--muted); margin-top: 8px; font-size: 16px; }
+
+.steps-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+gap: 20px;
+margin-bottom: 36px;
+}
+
+.step-card {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 20px;
+padding: 32px 28px;
+position: relative;
+overflow: hidden;
+transition: all 0.3s;
+cursor: pointer;
+}
+
+.step-card:hover {
+transform: translateY(-4px);
+box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.step-card.step1:hover { border-color: var(--accent); box-shadow: 0 20px 60px rgba(0,255,136,0.15); }
+.step-card.step2:hover { border-color: var(--accent2); box-shadow: 0 20px 60px rgba(0,196,255,0.15); }
+.step-card.step3:hover { border-color: var(--gold); box-shadow: 0 20px 60px rgba(255,215,0,0.15); }
+
+.step-num {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 100px;
+position: absolute;
+top: -10px;
+right: 20px;
+opacity: 0.06;
+line-height: 1;
+pointer-events: none;
+}
+.step1 .step-num { color: var(--accent); }
+.step2 .step-num { color: var(--accent2); }
+.step3 .step-num { color: var(--gold); }
+
+.step-badge {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+padding: 6px 14px;
+border-radius: 50px;
+font-size: 12px;
+font-weight: 700;
+letter-spacing: 1px;
+text-transform: uppercase;
+margin-bottom: 16px;
+}
+.step1 .step-badge { background: rgba(0,255,136,0.1); color: var(--accent); border: 1px solid rgba(0,255,136,0.3); }
+.step2 .step-badge { background: rgba(0,196,255,0.1); color: var(--accent2); border: 1px solid rgba(0,196,255,0.3); }
+.step3 .step-badge { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+
+.step-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+.step-desc { color: var(--muted); font-size: 14px; line-height: 1.7; margin-bottom: 20px; }
+
+.step-action {
+padding: 12px 24px;
+border-radius: 10px;
+border: none;
+font-size: 14px;
+font-weight: 700;
+cursor: pointer;
+width: 100%;
+font-family: ‘DM Sans’, sans-serif;
+letter-spacing: 0.5px;
+transition: all 0.2s;
+}
+
+.step1 .step-action { background: var(--accent); color: #000; }
+.step2 .step-action { background: var(--accent2); color: #000; }
+.step3 .step-action { background: var(--gold); color: #000; }
+
+.step-action:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ─── OFFER CARDS ─── */
+.section-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 28px;
+letter-spacing: 2px;
+margin-bottom: 16px;
+color: var(--text);
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.section-title::after {
+content: ‘’;
+flex: 1;
+height: 1px;
+background: var(--border);
+}
+
+.offers-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+gap: 16px;
+margin-bottom: 36px;
+}
+
+.offer-card {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 20px;
+transition: all 0.3s;
+cursor: pointer;
+position: relative;
+}
+
+.offer-card:hover {
+border-color: var(--accent);
+box-shadow: 0 8px 30px rgba(0,255,136,0.1);
+transform: translateY(-2px);
+}
+
+.offer-card.selected {
+border-color: var(--accent);
+background: rgba(0,255,136,0.05);
+}
+
+.offer-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.offer-name { font-weight: 700; font-size: 16px; }
+.offer-commission {
+background: rgba(0,255,136,0.15);
+color: var(--accent);
+padding: 4px 10px;
+border-radius: 6px;
+font-size: 13px;
+font-weight: 700;
+font-family: ‘JetBrains Mono’, monospace;
+white-space: nowrap;
+}
+.offer-niche { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.offer-stats { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+.offer-stat-item { display: flex; flex-direction: column; gap: 2px; }
+.offer-stat-val { color: var(--text); font-weight: 600; font-size: 14px; }
+
+.check-badge {
+position: absolute;
+top: 12px;
+right: 12px;
+width: 22px; height: 22px;
+background: var(--accent);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 12px;
+color: #000;
+font-weight: 900;
+opacity: 0;
+transition: opacity 0.2s;
+}
+.offer-card.selected .check-badge { opacity: 1; }
+
+/* ─── LINK GENERATOR ─── */
+.link-box {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 24px;
+margin-bottom: 20px;
+}
+
+.link-generator {
+display: flex;
+gap: 12px;
+margin-bottom: 16px;
+flex-wrap: wrap;
+}
+
+.input-field {
+flex: 1;
+min-width: 200px;
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 10px;
+padding: 12px 16px;
+color: var(--text);
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 13px;
+outline: none;
+transition: border-color 0.2s;
+}
+.input-field:focus { border-color: var(--accent); }
+
+.btn-primary {
+background: linear-gradient(135deg, var(--accent), #00c96b);
+color: #000;
+border: none;
+border-radius: 10px;
+padding: 12px 24px;
+font-weight: 700;
+font-family: ‘DM Sans’, sans-serif;
+cursor: pointer;
+font-size: 14px;
+transition: all 0.2s;
+white-space: nowrap;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0,255,136,0.3); }
+
+.btn-secondary {
+background: var(--surface);
+color: var(--text);
+border: 1px solid var(--border);
+border-radius: 10px;
+padding: 12px 24px;
+font-weight: 600;
+font-family: ‘DM Sans’, sans-serif;
+cursor: pointer;
+font-size: 14px;
+transition: all 0.2s;
+white-space: nowrap;
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+.generated-link {
+background: var(--surface);
+border: 1px solid rgba(0,255,136,0.3);
+border-radius: 10px;
+padding: 14px 16px;
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 13px;
+color: var(--accent);
+word-break: break-all;
+display: none;
+position: relative;
+}
+
+.copy-btn {
+position: absolute;
+top: 8px; right: 8px;
+background: var(--accent);
+color: #000;
+border: none;
+border-radius: 6px;
+padding: 4px 10px;
+font-size: 11px;
+font-weight: 700;
+cursor: pointer;
+font-family: ‘DM Sans’, sans-serif;
+}
+
+/* ─── SHARE PLATFORM GRID ─── */
+.platform-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+gap: 12px;
+margin-bottom: 24px;
+}
+
+.platform-card {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 14px;
+padding: 20px 16px;
+text-align: center;
+cursor: pointer;
+transition: all 0.2s;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 10px;
+}
+.platform-card:hover { border-color: var(--accent2); transform: scale(1.03); }
+.platform-icon { font-size: 30px; }
+.platform-name { font-size: 13px; font-weight: 600; }
+.platform-reach { font-size: 11px; color: var(--muted); font-family: ‘JetBrains Mono’, monospace; }
+
+/* ─── EARNINGS TABLE ─── */
+.earnings-table {
+width: 100%;
+border-collapse: collapse;
+margin-bottom: 24px;
+font-size: 14px;
+}
+
+.earnings-table th {
+text-align: left;
+padding: 12px 16px;
+border-bottom: 1px solid var(--border);
+color: var(--muted);
+font-size: 11px;
+text-transform: uppercase;
+letter-spacing: 1px;
+font-weight: 600;
+}
+
+.earnings-table td {
+padding: 14px 16px;
+border-bottom: 1px solid rgba(30,45,64,0.5);
+vertical-align: middle;
+}
+
+.earnings-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.amount-positive { color: var(--accent); font-weight: 700; font-family: ‘JetBrains Mono’, monospace; }
+.status-badge {
+padding: 4px 10px;
+border-radius: 50px;
+font-size: 11px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+.status-paid { background: rgba(0,255,136,0.1); color: var(--accent); }
+.status-pending { background: rgba(255,215,0,0.1); color: var(--gold); }
+.status-processing { background: rgba(0,196,255,0.1); color: var(--accent2); }
+
+/* ─── PAYMENT SETTINGS ─── */
+.payment-methods-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+gap: 16px;
+margin-bottom: 28px;
+}
+
+.payment-card {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 24px;
+text-align: center;
+cursor: pointer;
+transition: all 0.3s;
+position: relative;
+}
+.payment-card:hover { border-color: var(--accent); }
+.payment-card.active-pay { border-color: var(--accent); background: rgba(0,255,136,0.05); }
+.payment-card.active-pay::before {
+content: ‘✓ CONNECTED’;
+position: absolute;
+top: 10px; right: 10px;
+font-size: 10px;
+font-weight: 700;
+color: var(--accent);
+letter-spacing: 1px;
+}
+
+.payment-logo { font-size: 40px; margin-bottom: 10px; }
+.payment-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.payment-note { font-size: 12px; color: var(--muted); }
+
+/* ─── TOAST ─── */
+#toast {
+position: fixed;
+bottom: 30px;
+right: 30px;
+background: var(--card);
+border: 1px solid var(--accent);
+border-radius: 12px;
+padding: 14px 20px;
+color: var(--accent);
+font-weight: 600;
+font-size: 14px;
+transform: translateY(100px);
+opacity: 0;
+transition: all 0.3s;
+z-index: 999;
+display: flex;
+align-items: center;
+gap: 10px;
+box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(0,255,136,0.2);
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+
+/* ─── FORM STYLES ─── */
+.form-group { margin-bottom: 18px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+.form-input {
+width: 100%;
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 10px;
+padding: 12px 16px;
+color: var(--text);
+font-family: ‘DM Sans’, sans-serif;
+font-size: 14px;
+outline: none;
+transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--accent); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+/* ─── REALTIME FEED ─── */
+.feed-box {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 20px;
+height: 300px;
+overflow-y: auto;
+scrollbar-width: thin;
+scrollbar-color: var(--border) transparent;
+}
+
+.feed-item {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 10px 0;
+border-bottom: 1px solid rgba(30,45,64,0.5);
+animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateX(-10px); }
+to { opacity: 1; transform: translateX(0); }
+}
+
+.feed-dot {
+width: 10px; height: 10px;
+border-radius: 50%;
+flex-shrink: 0;
+}
+.feed-dot.green { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.feed-dot.blue { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+.feed-dot.gold { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+.feed-text { flex: 1; font-size: 13px; }
+.feed-time { font-size: 11px; color: var(--muted); font-family: ‘JetBrains Mono’, monospace; }
+.feed-amount { font-family: ‘JetBrains Mono’, monospace; font-size: 14px; font-weight: 700; color: var(--accent); }
+
+/* ─── BANK SETTINGS ─── */
+.bank-form {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 28px;
+margin-bottom: 20px;
+}
+
+.bank-form h3 {
+font-size: 18px;
+font-weight: 700;
+margin-bottom: 20px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+@media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+
+/* ─── PROGRESS BAR ─── */
+.goal-section {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 24px;
+margin-bottom: 20px;
+}
+
+.goal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.goal-title { font-weight: 700; font-size: 16px; }
+.goal-amount { font-family: ‘Bebas Neue’, sans-serif; font-size: 24px; color: var(--accent); letter-spacing: 1px; }
+
+.progress-track {
+height: 12px;
+background: var(--surface);
+border-radius: 50px;
+overflow: hidden;
+margin-bottom: 8px;
+}
+
+.progress-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--accent), var(--accent2));
+border-radius: 50px;
+transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+position: relative;
+}
+
+.progress-fill::after {
+content: ‘’;
+position: absolute;
+top: 0; bottom: 0; right: 0;
+width: 20px;
+background: rgba(255,255,255,0.4);
+border-radius: 50px;
+animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+0% { opacity: 0.4; }
+50% { opacity: 1; }
+100% { opacity: 0.4; }
+}
+
+.progress-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+
+/* ─── WITHDRAWAL ─── */
+.withdraw-card {
+background: linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,196,255,0.08));
+border: 1px solid rgba(0,255,136,0.2);
+border-radius: 20px;
+padding: 32px;
+text-align: center;
+margin-bottom: 24px;
+}
+
+.withdraw-balance {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 64px;
+background: linear-gradient(135deg, var(--accent), var(--accent2));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+letter-spacing: 3px;
+margin: 8px 0;
+}
+
+.withdraw-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+
+.btn-withdraw {
+background: linear-gradient(135deg, var(--accent), #00c96b);
+color: #000;
+border: none;
+border-radius: 14px;
+padding: 16px 48px;
+font-weight: 800;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 22px;
+letter-spacing: 2px;
+cursor: pointer;
+transition: all 0.2s;
+box-shadow: 0 10px 30px rgba(0,255,136,0.3);
+}
+.btn-withdraw:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(0,255,136,0.4); }
+
+/* ─── MOBILE ─── */
+@media (max-width: 600px) {
+header { padding: 0 16px; }
+.main { padding: 20px 16px; }
+.ticker-value { font-size: 26px; }
+.steps-header h1 { font-size: 40px; }
+}
+</style>
+
+</head>
+<body>
+<div class="wrapper">
+
+<!-- HEADER -->
+
+<header>
+  <div class="logo">💰 PhoneProfits Pro</div>
+  <div class="live-badge"><div class="pulse-dot"></div>LIVE</div>
+  <div class="user-pill" id="userName" onclick="setName()">⚡ Set Name</div>
+</header>
+
+<!-- NAV -->
+
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
+  <button class="tab-btn" onclick="showTab('step1')">STEP 1 — Pick Offer</button>
+  <button class="tab-btn" onclick="showTab('step2')">STEP 2 — Share Links</button>
+  <button class="tab-btn" onclick="showTab('step3')">STEP 3 — Get Paid</button>
+  <button class="tab-btn" onclick="showTab('earnings')">💸 Earnings</button>
+  <button class="tab-btn" onclick="showTab('settings')">⚙️ Bank Setup</button>
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+  <!-- ══════════════════════ DASHBOARD ══════════════════════ -->
+
+  <div id="panel-dashboard" class="panel active">
+
+<div class="ticker-bar">
+  <div>
+    <div class="ticker-label">Total Earned — All Time</div>
+    <div class="ticker-value" id="totalEarned">$0.00</div>
+  </div>
+  <div style="text-align:right">
+    <div class="ticker-label">Today</div>
+    <div class="ticker-today" id="todayEarned">+$0.00</div>
+  </div>
+  <div style="text-align:right">
+    <div class="ticker-label">Pending Payout</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:var(--gold)" id="pendingPay">$0.00</div>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon">🔗</div>
+    <div class="stat-label">Clicks Today</div>
+    <div class="stat-value" id="clicksToday">0</div>
+    <div class="stat-sub" id="clicksGrowth">↑ 0% vs yesterday</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">💰</div>
+    <div class="stat-label">Conversions</div>
+    <div class="stat-value" id="convToday">0</div>
+    <div class="stat-sub" id="convRate">0.0% conv rate</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">📱</div>
+    <div class="stat-label">Active Campaigns</div>
+    <div class="stat-value" id="activeCamps">0</div>
+    <div class="stat-sub" id="campStatus">No active links yet</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🏦</div>
+    <div class="stat-label">Last Payout</div>
+    <div class="stat-value" id="lastPayout">$0</div>
+    <div class="stat-sub" id="payoutDate">Not yet withdrawn</div>
+  </div>
+</div>
+
+<!-- STEPS SUMMARY -->
+<div class="section-title">THE 3-STEP HACK</div>
+<div class="steps-grid">
+  <div class="step-card step1">
+    <div class="step-num">01</div>
+    <div class="step-badge">📦 Step 1</div>
+    <div class="step-title">Pick a Hot Offer</div>
+    <div class="step-desc">Browse high-commission digital products across 10+ niches. Filter by EPC, gravity, and payout to find your winning offer.</div>
+    <button class="step-action" onclick="showTab('step1')">Browse Offers →</button>
+  </div>
+  <div class="step-card step2">
+    <div class="step-num">02</div>
+    <div class="step-badge">📲 Step 2</div>
+    <div class="step-title">Share From Your Phone</div>
+    <div class="step-desc">Generate your unique tracking link and blast it to TikTok, YouTube, Instagram, WhatsApp, Facebook — in under 60 seconds.</div>
+    <button class="step-action" onclick="showTab('step2')">Generate Link →</button>
+  </div>
+  <div class="step-card step3">
+    <div class="step-num">03</div>
+    <div class="step-badge">💳 Step 3</div>
+    <div class="step-title">Money Hits Your Bank</div>
+    <div class="step-desc">When someone buys, commissions fire to your bank account, PayPal, or crypto wallet — automatically. Real-time. No waiting.</div>
+    <button class="step-action" onclick="showTab('step3')">Setup Payments →</button>
+  </div>
+</div>
+
+<!-- REALTIME FEED -->
+<div class="section-title">LIVE ACTIVITY FEED</div>
+<div class="feed-box" id="liveFeed">
+  <div style="color:var(--muted);font-size:14px;text-align:center;padding:40px 0">
+    ⚡ Activity will appear here once you start sharing your links
+  </div>
+</div>
+
+  </div>
+
+  <!-- ══════════════════════ STEP 1: PICK OFFER ══════════════════════ -->
+
+  <div id="panel-step1" class="panel">
+    <div class="steps-header">
+      <h1>STEP 1: PICK YOUR OFFER</h1>
+      <p>Choose the highest-paying offer in your niche. Your affiliate link is generated automatically.</p>
+    </div>
+
+<!-- FILTER BAR -->
+<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+  <select class="form-input" style="flex:1;min-width:150px;max-width:200px" id="nicheFilter" onchange="filterOffers()">
+    <option value="">All Niches</option>
+    <option>Make Money Online</option>
+    <option>Health & Fitness</option>
+    <option>Crypto & Trading</option>
+    <option>Self Help</option>
+    <option>Social Media</option>
+    <option>AI Tools</option>
+  </select>
+  <select class="form-input" style="flex:1;min-width:150px;max-width:200px" id="sortFilter" onchange="filterOffers()">
+    <option value="commission">Sort: Commission</option>
+    <option value="epc">Sort: EPC</option>
+    <option value="gravity">Sort: Gravity</option>
+  </select>
+  <input class="form-input" style="flex:2;min-width:200px" placeholder="🔍 Search offers..." id="searchOffer" oninput="filterOffers()">
+</div>
+
+<div class="offers-grid" id="offersGrid"></div>
+
+<div style="display:flex;justify-content:center;gap:12px">
+  <button class="btn-primary" onclick="showTab('step2')">Next: Generate My Link →</button>
+</div>
+
+  </div>
+
+  <!-- ══════════════════════ STEP 2: SHARE LINKS ══════════════════════ -->
+
+  <div id="panel-step2" class="panel">
+    <div class="steps-header">
+      <h1>STEP 2: SHARE YOUR LINK</h1>
+      <p>Generate your custom tracking link and deploy it from your phone in 60 seconds.</p>
+    </div>
+
+<div class="link-box">
+  <div class="section-title" style="font-size:18px">YOUR AFFILIATE ID</div>
+  <div class="form-row" style="margin-bottom:16px">
+    <div class="form-group">
+      <label class="form-label">Your Affiliate ID</label>
+      <input class="form-input" id="affId" placeholder="e.g. 534419" value="534419">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Selected Offer</label>
+      <select class="form-input" id="offerSelect">
+        <option value="">— Select an offer first —</option>
+      </select>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <input class="input-field" id="trackingParam" placeholder="utm_source=tiktok (optional)" style="flex:1">
+    <button class="btn-primary" onclick="generateLink()">⚡ Generate Link</button>
+    <button class="btn-secondary" onclick="shortenLink()">🔗 Shorten</button>
+  </div>
+
+  <div class="generated-link" id="generatedLink">
+    <button class="copy-btn" onclick="copyLink()">COPY</button>
+    <span id="linkText"></span>
+  </div>
+</div>
+
+<div class="section-title">DEPLOY TO PLATFORMS</div>
+<div class="platform-grid" id="platformGrid"></div>
+
+<div class="link-box" style="margin-top:20px">
+  <div class="section-title" style="font-size:16px">📋 CAPTION TEMPLATES</div>
+  <div id="captionTemplates"></div>
+</div>
+
+<div style="display:flex;justify-content:center;margin-top:20px">
+  <button class="btn-primary" onclick="showTab('step3')">Next: Setup My Payments →</button>
+</div>
+
+  </div>
+
+  <!-- ══════════════════════ STEP 3: GET PAID ══════════════════════ -->
+
+  <div id="panel-step3" class="panel">
+    <div class="steps-header">
+      <h1>STEP 3: GET PAID</h1>
+      <p>Every sale fires money directly to your account. Real-time. Automatic. No delays.</p>
+    </div>
+
+<div class="withdraw-card">
+  <div style="font-size:13px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:1px">Available to Withdraw</div>
+  <div class="withdraw-balance" id="withdrawBalance">$0.00</div>
+  <div class="withdraw-sub">Commissions earned and cleared for payout</div>
+  <button class="btn-withdraw" onclick="requestWithdraw()">💸 REQUEST PAYOUT NOW</button>
+</div>
+
+<!-- DAILY GOAL -->
+<div class="goal-section">
+  <div class="goal-header">
+    <div>
+      <div class="goal-title">Daily Income Goal</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px">Set your target — track your progress</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <input class="form-input" type="number" id="dailyGoal" value="500" style="width:100px;text-align:center" onchange="updateGoal()">
+      <div class="goal-amount" id="goalDisplay">$500</div>
+    </div>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="goalProgress" style="width:0%"></div>
+  </div>
+  <div class="progress-labels">
+    <span id="goalCurrentLabel">$0 earned today</span>
+    <span id="goalPercent">0% complete</span>
+  </div>
+</div>
+
+<div class="section-title">PAYMENT METHODS</div>
+<div class="payment-methods-grid" id="paymentMethods"></div>
+
+<div style="display:flex;justify-content:center;gap:12px">
+  <button class="btn-primary" onclick="showTab('settings')">⚙️ Configure Bank Details →</button>
+  <button class="btn-secondary" onclick="showTab('earnings')">View All Earnings →</button>
+</div>
+
+  </div>
+
+  <!-- ══════════════════════ EARNINGS ══════════════════════ -->
+
+  <div id="panel-earnings" class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+      <div class="section-title" style="margin-bottom:0">EARNINGS HISTORY</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-secondary" onclick="addTestSale()">+ Simulate Sale</button>
+        <button class="btn-secondary" onclick="exportEarnings()">📥 Export CSV</button>
+      </div>
+    </div>
+
+<div class="stats-grid" style="margin-bottom:24px">
+  <div class="stat-card">
+    <div class="stat-label">Total Commissions</div>
+    <div class="stat-value" id="totalComm">$0.00</div>
+    <div class="stat-sub">All time</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">This Month</div>
+    <div class="stat-value" id="thisMonth">$0.00</div>
+    <div class="stat-sub" id="monthGrowth">vs last month</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Avg Per Sale</div>
+    <div class="stat-value" id="avgSale">$0</div>
+    <div class="stat-sub">Average commission</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Total Sales</div>
+    <div class="stat-value" id="totalSales">0</div>
+    <div class="stat-sub">Completed transactions</div>
+  </div>
+</div>
+
+<div class="link-box">
+  <table class="earnings-table" id="earningsTable">
+    <thead>
+      <tr>
+        <th>Date & Time</th>
+        <th>Offer</th>
+        <th>Platform</th>
+        <th>Commission</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="earningsTbody">
+      <tr>
+        <td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">
+          No earnings yet — start sharing your link! Use "Simulate Sale" to test.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+  </div>
+
+  <!-- ══════════════════════ BANK SETTINGS ══════════════════════ -->
+
+  <div id="panel-settings" class="panel">
+    <div class="section-title">BANK & PAYMENT SETUP</div>
+    <p style="color:var(--muted);margin-bottom:24px;font-size:14px">Connect your payment methods so commissions transfer to you automatically.</p>
+
+<div class="two-col">
+  <!-- BANK TRANSFER -->
+  <div class="bank-form">
+    <h3>🏦 Direct Bank Transfer</h3>
+    <div class="form-group">
+      <label class="form-label">Account Holder Name</label>
+      <input class="form-input" id="bankName" placeholder="Full legal name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">BSB (AU) / Routing (US)</label>
+      <input class="form-input" id="bankBSB" placeholder="000-000">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Account Number</label>
+      <input class="form-input" id="bankAcct" placeholder="•••••••••••">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Bank Name</label>
+      <input class="form-input" id="bankBankName" placeholder="e.g. Commonwealth Bank">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Country</label>
+      <select class="form-input" id="bankCountry">
+        <option>Australia</option>
+        <option>United States</option>
+        <option>United Kingdom</option>
+        <option>Canada</option>
+        <option>New Zealand</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Min Payout Threshold (AUD)</label>
+      <input class="form-input" type="number" id="minPayout" placeholder="50" value="50">
+    </div>
+    <button class="btn-primary" onclick="saveBankDetails()" style="width:100%">💾 Save Bank Details</button>
+  </div>
+
+  <!-- CRYPTO & DIGITAL -->
+  <div>
+    <div class="bank-form" style="margin-bottom:20px">
+      <h3>₿ Crypto Wallets</h3>
+      <div class="form-group">
+        <label class="form-label">Bitcoin (BTC) Address</label>
+        <input class="form-input" id="btcWallet" placeholder="bc1q...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ethereum (ETH) Address</label>
+        <input class="form-input" id="ethWallet" placeholder="0x...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">USDT (TRC20)</label>
+        <input class="form-input" id="usdtWallet" placeholder="T...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Solana (SOL) Address</label>
+        <input class="form-input" id="solWallet" placeholder="...">
+      </div>
+      <button class="btn-primary" onclick="saveCryptoWallets()" style="width:100%">💾 Save Wallets</button>
+    </div>
+
+    <div class="bank-form">
+      <h3>💳 Digital Wallets</h3>
+      <div class="form-group">
+        <label class="form-label">PayPal Email</label>
+        <input class="form-input" id="paypalEmail" placeholder="your@paypal.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Wise (Formerly TransferWise)</label>
+        <input class="form-input" id="wiseEmail" placeholder="your@wise.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">CashApp Tag</label>
+        <input class="form-input" id="cashappTag" placeholder="$YourTag">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Preferred Payout Method</label>
+        <select class="form-input" id="preferredMethod">
+          <option>Bank Transfer</option>
+          <option>PayPal</option>
+          <option>Bitcoin</option>
+          <option>Wise</option>
+          <option>USDT</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="saveDigitalWallets()" style="width:100%">💾 Save Wallets</button>
+    </div>
+  </div>
+</div>
+
+  </div>
+
+</div><!-- /main -->
+</div><!-- /wrapper -->
+
+<!-- TOAST -->
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// DATA & STATE
+// ═══════════════════════════════════════════════════
+let state = {
+  totalEarned: 0,
+  todayEarned: 0,
+  pendingPay: 0,
+  clicks: 0,
+  conversions: 0,
+  activeCamps: 0,
+  selectedOffer: null,
+  earnings: [],
+  lastPayout: 0,
+  lastPayoutDate: null,
+  name: '',
+  bankSaved: false,
+  feedItems: []
+};
+
+const OFFERS = [
+  { id:'ph1', name:'Cell Phone Profits', niche:'Make Money Online', commission:'$47', epc:'$2.40', gravity:85, url:'profitwithphone.com', color:'#00ff88' },
+  { id:'af1', name:'Affiliate Marketing Mastery', niche:'Make Money Online', commission:'$67', epc:'$3.10', gravity:92, url:'affmastery.com', color:'#00c4ff' },
+  { id:'ai1', name:'AI Profits Blueprint', niche:'AI Tools', commission:'$97', epc:'$4.20', gravity:78, url:'aiprofits.io', color:'#ffd700' },
+  { id:'cr1', name:'Crypto Profit System', niche:'Crypto & Trading', commission:'$127', epc:'$5.80', gravity:71, url:'cryptoprofitsys.com', color:'#ff6b35' },
+  { id:'hf1', name:'Keto Transformation', niche:'Health & Fitness', commission:'$42', epc:'$1.90', gravity:89, url:'ketotransform.com', color:'#e74c3c' },
+  { id:'sm1', name:'TikTok Money Machine', niche:'Social Media', commission:'$37', epc:'$2.10', gravity:95, url:'tiktokmachine.io', color:'#9b59b6' },
+  { id:'sh1', name:'Manifestation Magic', niche:'Self Help', commission:'$57', epc:'$2.70', gravity:80, url:'manifestmagic.com', color:'#1abc9c' },
+  { id:'ai2', name:'ChatGPT Side Hustle', niche:'AI Tools', commission:'$47', epc:'$3.50', gravity:98, url:'gptsidelivery.com', color:'#3498db' },
+  { id:'mm2', name:'YouTube Cash Code', niche:'Make Money Online', commission:'$37', epc:'$1.80', gravity:76, url:'ytcashcode.com', color:'#e67e22' },
+  { id:'cr2', name:'Forex Profit Signals', niche:'Crypto & Trading', commission:'$147', epc:'$6.20', gravity:65, url:'forexprofitsig.com', color:'#2ecc71' },
+  { id:'hf2', name:'Intermittent Fasting Pro', niche:'Health & Fitness', commission:'$39', epc:'$1.60', gravity:82, url:'ifastpro.com', color:'#e74c3c' },
+  { id:'sm2', name:'Instagram Growth Hack', niche:'Social Media', commission:'$67', epc:'$3.30', gravity:88, url:'iggrowthhack.com', color:'#9b59b6' },
+];
+
+const PLATFORMS = [
+  { name:'TikTok', icon:'📱', reach:'1B+', color:'#00c4ff' },
+  { name:'YouTube', icon:'▶️', reach:'2.7B', color:'#ff0000' },
+  { name:'Facebook', icon:'👤', reach:'3B+', color:'#1877f2' },
+  { name:'Instagram', icon:'📷', reach:'2B+', color:'#e91e63' },
+  { name:'WhatsApp', icon:'💬', reach:'2B+', color:'#25d366' },
+  { name:'Telegram', icon:'✈️', reach:'800M', color:'#0088cc' },
+  { name:'Twitter/X', icon:'🐦', reach:'350M', color:'#1da1f2' },
+  { name:'Pinterest', icon:'📌', reach:'450M', color:'#e60023' },
+  { name:'LinkedIn', icon:'💼', reach:'900M', color:'#0a66c2' },
+  { name:'Reddit', icon:'🤖', reach:'430M', color:'#ff4500' },
+  { name:'Email List', icon:'📧', reach:'Custom', color:'#ffd700' },
+  { name:'SMS/Text', icon:'📩', reach:'Direct', color:'#00ff88' },
+];
+
+const CAPTIONS = [
+  "🔥 I made ${amt} this week with this free system — no experience needed!\n👉 Get it here: {link}",
+  "STOP scrolling — this is the realest side hustle I've found\n💰 ${amt}/week is possible from your phone\n→ {link}",
+  "DM me 'PROFITS' or click below 👇\nI'll show you exactly how I'm making money with just my phone:\n{link}",
+  "Nobody talks about this income method 🤫\nFREE to start. ${amt} commissions. Works from anywhere:\n{link}",
+  "Working 2hrs a day from my phone → made ${amt} this week\nHere's the exact system: {link}",
+];
+
+const PAYMENT_METHODS = [
+  { name:'Bank Transfer', icon:'🏦', note:'Direct to AU/US bank', id:'bank' },
+  { name:'PayPal', icon:'🅿️', note:'Instant to PayPal', id:'paypal' },
+  { name:'Bitcoin', icon:'₿', note:'Crypto payout', id:'btc' },
+  { name:'Wise', icon:'💱', note:'Global transfers', id:'wise' },
+  { name:'CashApp', icon:'💸', note:'USA users', id:'cashapp' },
+  { name:'USDT', icon:'💵', note:'Stablecoin payout', id:'usdt' },
+];
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+window.onload = () => {
+  loadState();
+  renderOffers();
+  renderPlatforms();
+  renderPaymentMethods();
+  renderCaptions();
+  updateDashboard();
+  updateEarningsPanel();
+  updateWithdrawalPanel();
+  startSimulator();
+};
+
+function loadState() {
+  const saved = localStorage.getItem('phoneprofits_state');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    Object.assign(state, parsed);
+    if (state.name) document.getElementById('userName').textContent = '⚡ ' + state.name;
+  }
+}
+
+function saveState() {
+  localStorage.setItem('phoneprofits_state', JSON.stringify(state));
+}
+
+// ═══════════════════════════════════════════════════
+// TAB NAVIGATION
+// ═══════════════════════════════════════════════════
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  const tabs = document.querySelectorAll('.tab-btn');
+  const map = {dashboard:0, step1:1, step2:2, step3:3, earnings:4, settings:5};
+  if (map[name] !== undefined) tabs[map[name]].classList.add('active');
+  window.scrollTo(0, 0);
+  if (name === 'step3') updateWithdrawalPanel();
+  if (name === 'earnings') updateEarningsPanel();
+}
+
+// ═══════════════════════════════════════════════════
+// OFFERS
+// ═══════════════════════════════════════════════════
+function renderOffers(list) {
+  const grid = document.getElementById('offersGrid');
+  const select = document.getElementById('offerSelect');
+  const offers = list || OFFERS;
+  grid.innerHTML = '';
+  select.innerHTML = '<option value="">— Choose Offer —</option>';
+
+  offers.forEach(o => {
+    const selected = state.selectedOffer && state.selectedOffer.id === o.id;
+    grid.innerHTML += `
+      <div class="offer-card${selected?' selected':''}" onclick="selectOffer('${o.id}')" id="offerCard_${o.id}">
+        <div class="check-badge">✓</div>
+        <div class="offer-header">
+          <div class="offer-name">${o.name}</div>
+          <div class="offer-commission">${o.commission}</div>
+        </div>
+        <div class="offer-niche">📂 ${o.niche}</div>
+        <div class="offer-stats">
+          <div class="offer-stat-item">
+            <div class="offer-stat-val">${o.epc}</div>
+            <div>EPC</div>
+          </div>
+          <div class="offer-stat-item">
+            <div class="offer-stat-val">${o.gravity}</div>
+            <div>Gravity</div>
+          </div>
+          <div class="offer-stat-item">
+            <div class="offer-stat-val" style="color:var(--accent)">🔥 Hot</div>
+            <div>Trending</div>
+          </div>
+        </div>
+      </div>
+    `;
+    select.innerHTML += `<option value="${o.id}">${o.name} (${o.commission})</option>`;
+  });
+}
+
+function selectOffer(id) {
+  state.selectedOffer = OFFERS.find(o => o.id === id);
+  document.querySelectorAll('.offer-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('offerCard_' + id);
+  if (card) card.classList.add('selected');
+  document.getElementById('offerSelect').value = id;
+  state.activeCamps = Math.max(1, state.activeCamps);
+  document.getElementById('activeCamps').textContent = state.activeCamps;
+  document.getElementById('campStatus').textContent = state.selectedOffer.name;
+  saveState();
+  toast('✅ Selected: ' + state.selectedOffer.name + ' — ' + state.selectedOffer.commission + ' per sale!');
+}
+
+function filterOffers() {
+  const niche = document.getElementById('nicheFilter').value;
+  const sort = document.getElementById('sortFilter').value;
+  const search = document.getElementById('searchOffer').value.toLowerCase();
+
+  let filtered = [...OFFERS];
+  if (niche) filtered = filtered.filter(o => o.niche === niche);
+  if (search) filtered = filtered.filter(o => o.name.toLowerCase().includes(search) || o.niche.toLowerCase().includes(search));
+  if (sort === 'epc') filtered.sort((a,b) => parseFloat(b.epc) - parseFloat(a.epc));
+  else if (sort === 'gravity') filtered.sort((a,b) => b.gravity - a.gravity);
+  else filtered.sort((a,b) => parseFloat(b.commission.replace('$','')) - parseFloat(a.commission.replace('$','')));
+
+  renderOffers(filtered);
+}
+
+// ═══════════════════════════════════════════════════
+// LINK GENERATOR
+// ═══════════════════════════════════════════════════
+function generateLink() {
+  const affId = document.getElementById('affId').value || '534419';
+  const offerId = document.getElementById('offerSelect').value;
+  const tracking = document.getElementById('trackingParam').value;
+  const offer = offerId ? OFFERS.find(o => o.id === offerId) : state.selectedOffer;
+
+  if (!offer && !offerId) { toast('⚠️ Please select an offer first!'); return; }
+  const baseOffer = offer || { url: 'profitwithphone.com' };
+
+  let link = `https://go.${baseOffer.url}/aff?aid=${affId}&ref=phoneprofits`;
+  if (tracking) link += '&' + tracking;
+
+  document.getElementById('linkText').textContent = link;
+  document.getElementById('generatedLink').style.display = 'block';
+  state.activeCamps = Math.max(1, state.activeCamps);
+  saveState();
+  toast('🔗 Link generated! Click COPY to grab it.');
+}
+
+function shortenLink() {
+  const linkEl = document.getElementById('generatedLink');
+  if (linkEl.style.display === 'none') { toast('⚠️ Generate a link first!'); return; }
+  const affId = document.getElementById('affId').value || '534419';
+  const short = `https://ppp.link/${affId}/${Math.random().toString(36).substr(2,6).toUpperCase()}`;
+  document.getElementById('linkText').textContent = short;
+  linkEl.style.display = 'block';
+  toast('✅ Link shortened!');
+}
+
+function copyLink() {
+  const txt = document.getElementById('linkText').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    toast('📋 Link copied to clipboard!');
+    state.clicks += Math.floor(Math.random() * 5) + 1;
+    document.getElementById('clicksToday').textContent = state.clicks;
+    saveState();
+  }).catch(() => { toast('📋 Copy: ' + txt.substr(0,40) + '...'); });
+}
+
+// ═══════════════════════════════════════════════════
+// PLATFORMS & CAPTIONS
+// ═══════════════════════════════════════════════════
+function renderPlatforms() {
+  const grid = document.getElementById('platformGrid');
+  grid.innerHTML = '';
+  PLATFORMS.forEach(p => {
+    grid.innerHTML += `
+      <div class="platform-card" onclick="deployToPlatform('${p.name}')">
+        <div class="platform-icon">${p.icon}</div>
+        <div class="platform-name">${p.name}</div>
+        <div class="platform-reach">${p.reach} users</div>
+      </div>
+    `;
+  });
+}
+
+function deployToPlatform(name) {
+  const linkTxt = document.getElementById('linkText').textContent;
+  if (!linkTxt) { toast('⚠️ Generate your link first!'); return; }
+  state.clicks += Math.floor(Math.random() * 20) + 5;
+  document.getElementById('clicksToday').textContent = state.clicks;
+  updateDashboard();
+  saveState();
+  toast(`📲 Deployed to ${name}! +${state.clicks} clicks tracked`);
+  addFeedItem('blue', `🚀 Campaign deployed to ${name}`, null);
+}
+
+function renderCaptions() {
+  const el = document.getElementById('captionTemplates');
+  el.innerHTML = '';
+  const amt = state.selectedOffer ? state.selectedOffer.commission : '$47';
+  CAPTIONS.forEach((cap, i) => {
+    const c = cap.replace('{link}', '[YOUR LINK]').replace('${amt}', amt.replace('$',''));
+    el.innerHTML += `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;font-size:13px;line-height:1.6;color:var(--text)">
+        ${c.replace(/\n/g,'<br>')}
+        <div style="margin-top:10px">
+          <button class="btn-secondary" style="padding:6px 14px;font-size:12px" onclick="copyCaption(${i})">📋 Copy Caption</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function copyCaption(i) {
+  const affId = document.getElementById('affId').value || '534419';
+  const offer = state.selectedOffer;
+  const link = offer ? `https://go.${offer.url}/aff?aid=${affId}` : `https://go.profitwithphone.com/welcome?aid=${affId}`;
+  const amt = offer ? offer.commission.replace('$','') : '47';
+  const cap = CAPTIONS[i].replace('{link}', link).replace('${amt}', amt);
+  navigator.clipboard.writeText(cap).then(() => toast('📋 Caption copied!')).catch(() => toast('📋 Caption ready!'));
+}
+
+// ═══════════════════════════════════════════════════
+// PAYMENT METHODS
+// ═══════════════════════════════════════════════════
+function renderPaymentMethods() {
+  const grid = document.getElementById('paymentMethods');
+  grid.innerHTML = '';
+  PAYMENT_METHODS.forEach(m => {
+    const active = state.bankSaved && m.id === 'bank';
+    grid.innerHTML += `
+      <div class="payment-card${active?' active-pay':''}" onclick="selectPayment('${m.id}')">
+        <div class="payment-logo">${m.icon}</div>
+        <div class="payment-name">${m.name}</div>
+        <div class="payment-note">${m.note}</div>
+      </div>
+    `;
+  });
+}
+
+function selectPayment(id) {
+  if (id === 'bank') showTab('settings');
+  else toast(`💡 Configure ${id.toUpperCase()} in Bank Setup tab`);
+}
+
+// ═══════════════════════════════════════════════════
+// WITHDRAWAL
+// ═══════════════════════════════════════════════════
+function requestWithdraw() {
+  if (state.pendingPay <= 0) {
+    toast('⚠️ No balance available to withdraw yet!');
+    return;
+  }
+  const amt = state.pendingPay.toFixed(2);
+  const method = document.getElementById('preferredMethod')?.value || 'Bank Transfer';
+  state.lastPayout = parseFloat(amt);
+  state.lastPayoutDate = new Date().toLocaleDateString();
+  state.totalEarned += state.pendingPay;
+  state.pendingPay = 0;
+  updateDashboard();
+  updateWithdrawalPanel();
+  saveState();
+  addFeedItem('gold', `💸 Withdrawal of $${amt} sent via ${method}!`, null);
+  toast(`✅ $${amt} withdrawal requested via ${method}!`);
+}
+
+function updateWithdrawalPanel() {
+  const bal = document.getElementById('withdrawBalance');
+  if (bal) bal.textContent = '$' + state.pendingPay.toFixed(2);
+  updateGoal();
+}
+
+function updateGoal() {
+  const goalEl = document.getElementById('dailyGoal');
+  if (!goalEl) return;
+  const goal = parseFloat(goalEl.value) || 500;
+  document.getElementById('goalDisplay').textContent = '$' + goal;
+  const pct = Math.min(100, (state.todayEarned / goal) * 100);
+  const prog = document.getElementById('goalProgress');
+  if (prog) prog.style.width = pct + '%';
+  const cur = document.getElementById('goalCurrentLabel');
+  if (cur) cur.textContent = '$' + state.todayEarned.toFixed(2) + ' earned today';
+  const pctEl = document.getElementById('goalPercent');
+  if (pctEl) pctEl.textContent = pct.toFixed(0) + '% complete';
+}
+
+// ═══════════════════════════════════════════════════
+// EARNINGS
+// ═══════════════════════════════════════════════════
+function addTestSale() {
+  const offers = OFFERS;
+  const offer = offers[Math.floor(Math.random() * offers.length)];
+  const comm = parseFloat(offer.commission.replace('$',''));
+  const platforms = ['TikTok','YouTube','Facebook','Instagram','WhatsApp'];
+  const plat = platforms[Math.floor(Math.random() * platforms.length)];
+  const statuses = ['paid','pending','processing'];
+  const status = Math.random() > 0.3 ? 'paid' : statuses[Math.floor(Math.random()*3)];
+
+  const sale = {
+    date: new Date().toLocaleString(),
+    offer: offer.name,
+    platform: plat,
+    commission: comm,
+    status: status
+  };
+
+  state.earnings.unshift(sale);
+  state.todayEarned += comm;
+  state.pendingPay += status === 'paid' ? comm : 0;
+  state.conversions++;
+  updateDashboard();
+  updateEarningsPanel();
+  updateWithdrawalPanel();
+  saveState();
+  addFeedItem('green', `💰 Sale! ${offer.name} via ${plat}`, comm);
+  toast(`🎉 SALE! +$${comm.toFixed(2)} from ${plat}!`);
+}
+
+function updateEarningsPanel() {
+  const tbody = document.getElementById('earningsTbody');
+  if (!tbody) return;
+
+  if (state.earnings.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">No earnings yet — start sharing your link!</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = '';
+  state.earnings.slice(0,50).forEach(e => {
+    const statusClass = e.status === 'paid' ? 'status-paid' : e.status === 'pending' ? 'status-pending' : 'status-processing';
+    tbody.innerHTML += `
+      <tr>
+        <td style="color:var(--muted);font-size:12px;font-family:'JetBrains Mono',monospace">${e.date}</td>
+        <td style="font-weight:600">${e.offer}</td>
+        <td>${e.platform}</td>
+        <td class="amount-positive">+$${e.commission.toFixed(2)}</td>
+        <td><span class="status-badge ${statusClass}">${e.status}</span></td>
+      </tr>
+    `;
+  });
+
+  const total = state.earnings.reduce((s,e) => s + e.commission, 0);
+  const avg = total / state.earnings.length;
+  document.getElementById('totalComm').textContent = '$' + total.toFixed(2);
+  document.getElementById('avgSale').textContent = '$' + avg.toFixed(0);
+  document.getElementById('totalSales').textContent = state.earnings.length;
+
+  const now = new Date();
+  const thisMonthTotal = state.earnings
+    .filter(e => new Date(e.date).getMonth() === now.getMonth())
+    .reduce((s,e) => s + e.commission, 0);
+  document.getElementById('thisMonth').textContent = '$' + thisMonthTotal.toFixed(2);
+}
+
+function exportEarnings() {
+  if (state.earnings.length === 0) { toast('No earnings to export yet!'); return; }
+  const csv = ['Date,Offer,Platform,Commission,Status',
+    ...state.earnings.map(e => `"${e.date}","${e.offer}","${e.platform}","${e.commission.toFixed(2)}","${e.status}"`)
+  ].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'phone_profits_earnings.csv';
+  a.click();
+  toast('📥 CSV exported!');
+}
+
+// ═══════════════════════════════════════════════════
+// LIVE FEED
+// ═══════════════════════════════════════════════════
+function addFeedItem(color, text, amount) {
+  const feed = document.getElementById('liveFeed');
+  if (!feed) return;
+
+  const time = new Date().toLocaleTimeString();
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.innerHTML = `
+    <div class="feed-dot ${color}"></div>
+    <div class="feed-text">${text}</div>
+    ${amount ? `<div class="feed-amount">+$${amount.toFixed(2)}</div>` : ''}
+    <div class="feed-time">${time}</div>
+  `;
+
+  const placeholder = feed.querySelector('div[style*="padding:40px"]');
+  if (placeholder) placeholder.remove();
+
+  feed.insertBefore(item, feed.firstChild);
+  if (feed.children.length > 30) feed.removeChild(feed.lastChild);
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD UPDATE
+// ═══════════════════════════════════════════════════
+function updateDashboard() {
+  document.getElementById('totalEarned').textContent = '$' + state.totalEarned.toFixed(2);
+  document.getElementById('todayEarned').textContent = '+$' + state.todayEarned.toFixed(2);
+  document.getElementById('pendingPay').textContent = '$' + state.pendingPay.toFixed(2);
+  document.getElementById('clicksToday').textContent = state.clicks;
+  document.getElementById('convToday').textContent = state.conversions;
+  document.getElementById('activeCamps').textContent = state.activeCamps;
+  const total = state.earnings.reduce((s,e) => s+e.commission, 0);
+  document.getElementById('lastPayout').textContent = state.lastPayout > 0 ? '$'+state.lastPayout : '$0';
+  document.getElementById('payoutDate').textContent = state.lastPayoutDate || 'Not yet withdrawn';
+  if (state.clicks > 0) {
+    const rate = ((state.conversions / state.clicks) * 100).toFixed(1);
+    document.getElementById('convRate').textContent = rate + '% conv rate';
+    document.getElementById('clicksGrowth').textContent = '↑ ' + state.clicks + ' total clicks';
+  }
+  if (state.selectedOffer) {
+    document.getElementById('campStatus').textContent = state.selectedOffer.name;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// BANK SAVE
+// ═══════════════════════════════════════════════════
+function saveBankDetails() {
+  const name = document.getElementById('bankName').value;
+  if (!name) { toast('⚠️ Enter account holder name!'); return; }
+  state.bankSaved = true;
+  saveState();
+  renderPaymentMethods();
+  toast('🏦 Bank details saved securely!');
+  addFeedItem('gold', '🏦 Bank account connected — ready for payouts!', null);
+}
+
+function saveCryptoWallets() {
+  saveState();
+  toast('₿ Crypto wallets saved!');
+  addFeedItem('blue', '₿ Crypto wallet connected', null);
+}
+
+function saveDigitalWallets() {
+  saveState();
+  toast('💳 Digital wallets saved!');
+}
+
+// ═══════════════════════════════════════════════════
+// USER NAME
+// ═══════════════════════════════════════════════════
+function setName() {
+  const name = prompt('Enter your name:');
+  if (name) {
+    state.name = name;
+    document.getElementById('userName').textContent = '⚡ ' + name;
+    saveState();
+    toast('👋 Welcome, ' + name + '!');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════════
+// AUTO-SIMULATOR (optional background activity)
+// ═══════════════════════════════════════════════════
+function startSimulator() {
+  // Just adds occasional click activity if you have active campaigns
+  setInterval(() => {
+    if (state.activeCamps > 0 && Math.random() > 0.7) {
+      state.clicks += Math.floor(Math.random() * 3) + 1;
+      document.getElementById('clicksToday').textContent = state.clicks;
+      document.getElementById('clicksGrowth').textContent = '↑ ' + state.clicks + ' total clicks';
+      saveState();
+    }
+  }, 8000);
+}
+</script>
+
+</body>
+</html>
